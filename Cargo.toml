@@ -1,0 +1,15 @@
+[package]
+name = "fluent-string"
+description = "Fluent versions of String mutation methods"
+version = "0.0.1"
+edition = "2021"
+authors = ["Martin Bartlett"]
+license = "Apache-2.0"
+homepage = "https://github.com/bassmanitram/fluent-string"
+repository = "https://github.com/bassmanitram/fluent-string"
+documentation = "https://docs.rs/fluent-string"
+readme = "README.md"
+keywords = ["string", "fluent"]
+categories = ["rust-patterns"]
+
+[dependencies]
