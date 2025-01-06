@@ -1,7 +1,7 @@
 use std::{collections::TryReserveError, ops::RangeBounds};
 
-/// A trait that provides fluent versions of the `String` mutation
-/// methods, allowing for a more natural construction of strings.
+/// A trait that provides fluent versions of `String` mutation
+/// methods, allowing for a fluent construction of strings.
 ///
 /// # Examples
 /// ```
@@ -13,7 +13,7 @@ use std::{collections::TryReserveError, ops::RangeBounds};
 ///     .f_truncate(33),
 ///     "my string is, maybe, a bit longer");
 /// ```
-pub trait FluentMut: Sized {
+pub trait FluentString: Sized {
     /// As `String::clear` except returns `self`
     #[must_use]
     fn f_clear(self) -> Self;
@@ -66,7 +66,7 @@ pub trait FluentMut: Sized {
 
 /// Fluent versions of all `std::string:String` mutation methods that
 /// otherwise return nothing.
-impl FluentMut for String {
+impl FluentString for String {
     fn f_clear(mut self) -> Self {
         self.clear();
         self
@@ -144,7 +144,7 @@ impl FluentMut for String {
 
 /// Fluent versions of all `&mut std::string:String` mutation methods that
 /// otherwise return nothing.
-impl FluentMut for &mut String {
+impl FluentString for &mut String {
     fn f_clear(self) -> Self {
         self.clear();
         self
