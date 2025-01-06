@@ -62,6 +62,31 @@ pub trait FluentString: Sized {
     /// # Errors
     /// See `String::try_reserve_exact`
     fn f_try_reserve_exact(self, additional: usize) -> Result<Self, TryReserveError>;
+
+    /// As `FluentString::f_push` except only if `f` returns true 
+    #[must_use]
+    fn f_push_if<F>(self, ch: char, f: F) -> Self
+    where
+        F: Fn(&Self) -> bool {
+        if f(&self) {
+            self.f_push(ch)
+        } else {
+            self
+        }
+    }
+
+    /// As `FluentString::f_push_str` except only if `f` returns true 
+    #[must_use]
+    fn f_push_str_if<F>(self, string: &str, f: F) -> Self
+    where
+        F: Fn(&Self) -> bool {
+        if f(&self) {
+            self.f_push_str(string)
+        } else {
+            self
+        }
+    }
+
 }
 
 /// Fluent versions of all `std::string:String` mutation methods that
@@ -327,6 +352,38 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_owned_push_if_false() {
+        assert_eq!(
+            String::new().f_push_if(',', |s| !s.is_empty()),
+            ""
+        );
+    }
+
+    #[test]
+    fn test_owned_push_if_true() {
+        assert_eq!(
+            "hey".to_string().f_push_if(',', |s| !s.is_empty()),
+            "hey,"
+        );
+    }
+
+    #[test]
+    fn test_owned_push_str_if_false() {
+        assert_eq!(
+            String::new().f_push_str_if(",more", |s| !s.is_empty()),
+            ""
+        );
+    }
+
+    #[test]
+    fn test_owned_push_str_if_true() {
+        assert_eq!(
+            "hey".to_string().f_push_str_if(",more", |s| !s.is_empty()),
+            "hey,more"
+        );
+    }
+
     // String ref tests
     #[test]
     fn test_ref_clear() {
@@ -427,5 +484,44 @@ mod tests {
         let mut s = String::with_capacity(10);
         let s = &mut s;
         assert_eq!(s.f_try_reserve_exact(20).unwrap().capacity(), 20);
+    }
+    #[test]
+    fn test_ref_push_if_false() {
+        let mut s = String::new();
+        let s = &mut s;
+        assert_eq!(
+            s.f_push_if(',', |s| !s.is_empty()),
+            ""
+        );
+    }
+
+    #[test]
+    fn test_ref_push_if_true() {
+        let mut s = "hey".to_string();
+        let s = &mut s;
+        assert_eq!(
+            s.f_push_if(',', |s| !s.is_empty()),
+            "hey,"
+        );
+    }
+
+    #[test]
+    fn test_ref_push_str_if_false() {
+        let mut s = String::new();
+        let s = &mut s;
+        assert_eq!(
+            s.f_push_str_if(",more", |s| !s.is_empty()),
+            ""
+        );
+    }
+
+    #[test]
+    fn test_ref_push_str_if_true() {
+        let mut s = "hey".to_string();
+        let s = &mut s;
+        assert_eq!(
+            s.f_push_str_if(",more", |s| !s.is_empty()),
+            "hey,more"
+        );
     }
 }
