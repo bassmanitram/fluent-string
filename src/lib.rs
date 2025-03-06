@@ -91,6 +91,18 @@ pub trait FluentString: Sized {
             self
         }
     }
+
+    /// As `FluentString::f_truncate` except only if `f` returns Some(usize)
+    #[must_use]
+    fn f_truncate_if<F>(self, f: F) -> Self
+    where
+        F: Fn(&Self) -> Option<usize>,
+    {
+        match f(&self) {
+            Some(l) => self.f_truncate(l),
+            None => self
+        } 
+    }
 }
 
 /// Fluent versions of all `std::string:String` mutation methods that
@@ -397,6 +409,26 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_owned_truncate_if_some() {
+        assert_eq!(
+            "hey you"
+                .to_string()
+                .f_truncate_if(|s| if s.ends_with(" you") {Some(s.len() - 4)} else {None}),
+            "hey"
+        );
+    }
+
+    #[test]
+    fn test_owned_truncate_if_none() {
+        assert_eq!(
+            "hey you"
+                .to_string()
+                .f_truncate_if(|s| if s.ends_with(" ble") {Some(s.len() - 4)} else {None}),
+            "hey you"
+        );
+    }
+
     // String ref tests
     #[test]
     fn test_ref_clear() {
@@ -539,6 +571,26 @@ mod tests {
         assert_eq!(
             s.f_push_str_if(",more", |s, s1| !(s.is_empty() || s1.is_empty())),
             "hey,more"
+        );
+    }
+
+    #[test]
+    fn test_ref_truncate_if_some() {
+        let mut s = "hey you".to_string();
+        let s = &mut s;
+        assert_eq!(
+            s.f_truncate_if(|s| if s.ends_with(" you") {Some(s.len() - 4)} else {None}),
+            "hey"
+        );
+    }
+
+    #[test]
+    fn test_ref_truncate_if_none() {
+        let mut s = "hey you".to_string();
+        let s = &mut s;
+        assert_eq!(
+            s.f_truncate_if(|s| if s.ends_with(" ble") {Some(s.len() - 4)} else {None}),
+            "hey you"
         );
     }
 }
